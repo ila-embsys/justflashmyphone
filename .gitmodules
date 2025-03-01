@@ -1,0 +1,9 @@
+[submodule "libs/emmcdl"]
+	path = libs/emmcdl
+	url = https://github.com/nijel8/emmcdl.git
+[submodule "libs/libusb"]
+	path = libs/libusb
+	url = https://github.com/libusb/libusb.git
+[submodule "libs/fastboot.js"]
+	path = libs/fastboot.js
+	url = https://github.com/kdrag0n/fastboot.js.git

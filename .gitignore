@@ -1,0 +1,9 @@
+node_modules
+.yarn
+android-fastboot
+android-fastboot.tgz
+**/.yarn/cache
+src/emmcdl
+dist
+public/static
+.vscode/settings.json

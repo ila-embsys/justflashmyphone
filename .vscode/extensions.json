@@ -1,0 +1,8 @@
+{
+    "recommendations": [
+        "gruntfuggly.todo-tree",
+        "mhutchie.git-graph",
+        "rvest.vs-code-prettier-eslint",
+        "ms-vscode.wasm-dwarf-debugging"
+    ]
+}

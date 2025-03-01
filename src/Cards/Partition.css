@@ -1,0 +1,9 @@
+.partition {
+    display: block !important;
+}
+
+.slots {
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+}
