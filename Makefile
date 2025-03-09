@@ -16,7 +16,7 @@ export CFLAGS = -fPIC -pthread -fvisibility=default
 export CXXFLAGS = $(CPPFLAGS) -fPIC -O1 -g3 -gsource-map -pthread -fvisibility=default
 export LDFLAGS = -g3 -gsource-map
 
-EMMCDL_CPPFLAGS = -I'$(CURDIR)/$(LIBUSB_PREFIX)/include/libusb-1.0' 
+EMMCDL_CPPFLAGS = -I'$(CURDIR)/$(LIBUSB_PREFIX)/include' 
 EMMCDL_CXXFLAGS = $(EMMCDL_CPPFLAGS)
 
 # Flags are gathered here all around the Internet.
