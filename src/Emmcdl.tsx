@@ -1,5 +1,5 @@
 // ./emmcdl dir is artifact of building
-import EmscriptenModuleLoader from "./emmcdl/emmcdl.js";
+import EmscriptenModuleLoader from "./emmcdl/emmcdl";
 
 declare global {
   interface Navigator {

@@ -8,6 +8,8 @@ FASTBOOTJS_PATCHES_SRC = patches/fastboot.js
 
 LIBUSB_PREFIX=$(LIBUSB_SRC)/build
 
+EMMCDL_BUILD_DIR = src/emmcdl
+
 # https://github.com/emscripten-core/emscripten/pull/22095
 # https://github.com/emscripten-core/emscripten/pull/18418
 
@@ -17,7 +19,7 @@ export CXXFLAGS = $(CPPFLAGS) -fPIC -O1 -g3 -gsource-map -pthread -fvisibility=d
 export LDFLAGS = -g3 -gsource-map
 
 EMMCDL_CPPFLAGS = -I'$(CURDIR)/$(LIBUSB_PREFIX)/include' 
-EMMCDL_CXXFLAGS = $(EMMCDL_CPPFLAGS)
+EMMCDL_CXXFLAGS = $(EMMCDL_CPPFLAGS) -gsource-map
 
 # Flags are gathered here all around the Internet.
 # Someone who understands what is happening here are needed
@@ -37,9 +39,9 @@ EMMCDL_LDFLAGS = -L'$(CURDIR)/$(LIBUSB_PREFIX)/lib' \
 all: configure dist
 
 # `yarn start` can be called after having built this target
-build: src/emmcdl public/static/js/emmcdl.wasm
+build: $(EMMCDL_BUILD_DIR)/emmcdl.wasm
 
-dist: src/emmcdl public/static/js/emmcdl.wasm $(FASTBOOTJS_SRC)
+dist: build $(FASTBOOTJS_SRC)
 	yarn
 	yarn build
 
@@ -49,30 +51,27 @@ clean-dist:
 	$(RM) -r dist
 
 clean-emmcdl:
-	$(RM) public/static/js/emmcdl.wasm
-	$(RM) -r src/emmcdl
-	$(RM) $(EMMCDL_SRC)/emmcdl.wasm
-	$(RM) $(EMMCDL_SRC)/emmcdl.d.ts
-	$(RM) $(EMMCDL_SRC)/emmcdl
-	$(MAKE) -C $(EMMCDL_SRC) clean
+	$(MAKE) -C $(EMMCDL_BUILD_DIR) clean
+	$(RM) $(EMMCDL_BUILD_DIR)/emmcdl.wasm
+	$(RM) $(EMMCDL_BUILD_DIR)/emmcdl.wasm.map
+	$(RM) $(EMMCDL_BUILD_DIR)/emmcdl.d.ts
 
 clean-libusb:
 	$(RM) -r $(LIBUSB_SRC)/build
 	$(MAKE) -C $(LIBUSB_SRC) clean
 
-public/static/js/emmcdl.wasm: $(EMMCDL_SRC)/emmcdl.wasm
-	mkdir -p public/static/js
-	cp $(EMMCDL_SRC)/emmcdl.wasm public/static/js
-	cp $(EMMCDL_SRC)/emmcdl.wasm.map public/static/js || true
+$(EMMCDL_BUILD_DIR)/emmcdl.wasm: $(LIBUSB_PREFIX)/lib/libusb-1.0.a
+	EMMCDL_CPPFLAGS="$(EMMCDL_CPPFLAGS)" \
+	EMMCDL_CXXFLAGS="$(EMMCDL_CXXFLAGS)" \
+	EMMCDL_LDFLAGS="$(EMMCDL_LDFLAGS)" \
+		emmake make -C $(EMMCDL_BUILD_DIR)
 
-src/emmcdl: $(EMMCDL_SRC)/emmcdl.wasm
+$(EMMCDL_BUILD_DIR):
 	mkdir -p $@
-	cp $(EMMCDL_SRC)/emmcdl $@/emmcdl.js
-	cp $(EMMCDL_SRC)/emmcdl.d.ts $@/emmcdl.d.ts
 
-configure_emmcdl:
-	cd $(EMMCDL_SRC) && autoreconf -iv
-	cd $(EMMCDL_SRC) && emconfigure ./configure --host=wasm32-emscripten
+configure_emmcdl: $(EMMCDL_BUILD_DIR)
+	cd $(EMMCDL_BUILD_DIR) && autoreconf -iv $(CURDIR)/$(EMMCDL_SRC)
+	cd $(EMMCDL_BUILD_DIR) && emconfigure $(CURDIR)/$(EMMCDL_SRC)/configure --host=wasm32-emscripten
 
 configure_libusb:
 	cd $(LIBUSB_SRC) && autoreconf -iv
@@ -80,12 +79,6 @@ configure_libusb:
 
 configure: configure_libusb configure_emmcdl
 
-$(EMMCDL_SRC)/emmcdl.wasm: $(LIBUSB_PREFIX)/lib/libusb-1.0.a
-	cd $(EMMCDL_SRC) && \
-		EMMCDL_CPPFLAGS="$(EMMCDL_CPPFLAGS)" \
-		EMMCDL_CXXFLAGS="$(EMMCDL_CXXFLAGS)" \
-		EMMCDL_LDFLAGS="$(EMMCDL_LDFLAGS)" \
-			emmake make
 
 $(LIBUSB_PREFIX)/lib/libusb-1.0.a:
 	cd $(LIBUSB_SRC) && \
