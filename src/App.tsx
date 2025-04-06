@@ -29,6 +29,16 @@ import { SlotSelect } from "./Cards/SlotSelector";
 
 import emmcdl from "./Emmcdl";
 
+const callEmscriptenModule = () => {
+  try {
+    console.log("Emmcdl is being called to see if it works");
+    emmcdl(["-info"]);
+    // await emmcdl(["-MemoryName", "ufs", "-gpt", "-p", "0", "-v"]);
+  } catch (e) {
+    console.warn("Looks like emmcdl doesn't work:", e);
+  }
+};
+
 const App: FC = () => {
   // TODO: Avoid magic
   // Usage of "items: Record<string, any>" type instead of straight "Record<string, any>"
@@ -131,6 +141,11 @@ const App: FC = () => {
       if (vars) {
         setEnvVars({ items: vars });
       }
+
+      // Test call by a user's gesture
+      // Just a test
+      // This doesn't work
+      callEmscriptenModule();
     };
 
     fn();
