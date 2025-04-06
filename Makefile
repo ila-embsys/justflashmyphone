@@ -14,9 +14,9 @@ EMMCDL_BUILD_DIR = src/emmcdl
 # https://github.com/emscripten-core/emscripten/pull/18418
 
 export CPPFLAGS =
-export CFLAGS = -fPIC -pthread -fvisibility=default
-export CXXFLAGS = $(CPPFLAGS) -fPIC -O1 -g3 -gsource-map -pthread -fvisibility=default
-export LDFLAGS = -g3 -gsource-map
+export CFLAGS = -fPIC -pthread
+export CXXFLAGS = $(CPPFLAGS) -fPIC -pthread
+export LDFLAGS =
 
 EMMCDL_CPPFLAGS = -I'$(CURDIR)/$(LIBUSB_PREFIX)/include' 
 EMMCDL_CXXFLAGS = $(EMMCDL_CPPFLAGS) -gsource-map
@@ -25,13 +25,12 @@ EMMCDL_CXXFLAGS = $(EMMCDL_CPPFLAGS) -gsource-map
 # Someone who understands what is happening here are needed
 EMMCDL_LDFLAGS = -L'$(CURDIR)/$(LIBUSB_PREFIX)/lib' \
 	-s WASM=1 \
-	-s ENVIRONMENT=web,worker \
 	-s EXPORT_ES6=1 \
 	-s MODULARIZE=1 \
 	-s EXPORTED_RUNTIME_METHODS=ccall,cwrap \
 	-s ASSERTIONS=1 \
 	-s ASYNCIFY=1 \
-	-s ALLOW_MEMORY_GROWTH=1 \
+	-s ASYNCIFY_STACK_SIZE=8192 \
 	-s EXPORTED_FUNCTIONS=_main \
 	--emit-tsd emmcdl.d.ts \
 	--bind
