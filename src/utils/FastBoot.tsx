@@ -136,7 +136,7 @@ const commonFlash = async (
         slotName === "" ? partName : `${partName}_${slotName}`;
 
       // TODO: What to do with another images?
-      const blob: Blob = new Blob([await slot.image[0].arrayBuffer()]);
+      const blob: Blob = slot.image[0] as Blob;
 
       console.log(`Flashing ${blob.size} bytes of '${fullPartitionName}'...`);
 
