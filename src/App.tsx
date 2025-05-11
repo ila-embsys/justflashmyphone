@@ -64,7 +64,7 @@ const App: FC = () => {
         const ext = splitName[splitName.length - 1];
         const baseName = file.name.slice(0, -(ext.length + 1));
 
-        if (!["img", "bin"].includes(ext)) continue;
+        if (!["img", "bin", "elf", "mbn"].includes(ext)) continue;
 
         const [name, suffix] = parsePartitionName(baseName);
 
@@ -279,7 +279,7 @@ const App: FC = () => {
               )}
             </H5>
             <p>
-              Files with extensions '.img' and '.bin' will be filtered and
+              Files with extensions '.img', '.bin', '.elf' and '.mbn' will be filtered and
               selected for matched partitions
             </p>
           </Callout>
