@@ -75,11 +75,15 @@ const App: FC = () => {
 
         if (!partition) continue;
 
-        const slot = suffix ? partition.get(suffix) : partition.get("");
+        const slot = suffix !== undefined ? partition.get(suffix) : partition.get(envVars.items["current-slot"]);
 
-        if (!slot) continue;
-
+        if (slot !== undefined) {
+          slot.image.push(file);
+        } else {
+          for (const [slot_name, slot] of partition) {
         slot.image.push(file);
+          }
+        }
       }
 
       setPartitions(partitions);
@@ -111,7 +115,7 @@ const App: FC = () => {
             }
           };
 
-          const isSlot = name && suffix;
+          const isSlot = name && (suffix !== undefined);
 
           const slot: Slot = {
             size: envVars.items["partition-size"][fullName],

@@ -11,15 +11,18 @@ export type Slots = Map<string, Slot>;
 export type Partitions = Map<string, Slots>;
 
 export const parsePartitionName = (fullName: string) => {
-  const re = /(?<name>.+)(?=_(?<suffix>[a-z])$)/;
-  const group = { name: 1, suffix: 2 };
-  const regex = re.exec(fullName);
+  const split = fullName.split("_")
 
-  const [, name, suffix] = re.exec(fullName) || [
-    undefined,
-    undefined,
-    undefined,
-  ];
+  if (split.length > 1) {
+    const ext = split[split.length - 1]
+    const match = ext.match(/^[a-zA-Z]$/)
+    if (match) {
+      const base = split.slice(0, -1).join("_");
+      const ret = [base, ext];
+      return ret;
+    }
+  }
 
-  return [name, suffix];
+  return [fullName, undefined];
+
 };
