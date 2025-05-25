@@ -21,6 +21,7 @@ export interface SlotSelectProps {
   demo: boolean;
   envVars: Record<string, any>;
   setSlotInfo: CallableFunction;
+  title: string | undefined
 }
 
 export const SlotSelect: FC<SlotSelectProps> = ({
@@ -28,6 +29,7 @@ export const SlotSelect: FC<SlotSelectProps> = ({
   demo,
   envVars,
   setSlotInfo,
+  title,
 }) => {
   const slots: Slot[] = envVars["slot-retry-count"]
     ? Object.keys(envVars["slot-retry-count"]).map((key: string) => {
@@ -151,6 +153,7 @@ export const SlotSelect: FC<SlotSelectProps> = ({
     >
       <Button
         minimal
+        title={title}
         disabled={disabled || slots.length === 0}
         intent={
           slots.length > 0 && !selectedSlot

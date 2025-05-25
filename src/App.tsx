@@ -211,6 +211,7 @@ const App: FC = () => {
           <SlotSelect
             disabled={flashingInProgress}
             demo={demoConnect}
+            title={"Show boot slot selector with its states"}
             envVars={envVars.items}
             setSlotInfo={(newSlot: string) => {
               let newEnvVars = { items: envVars.items };
@@ -224,6 +225,7 @@ const App: FC = () => {
               disabled={!hasImage || flashingInProgress}
               icon="import"
               text="Flash All"
+              title="Flash all partitions of all slots that have matched filenames"
               loading={flashingInProgress}
               intent={hasImage ? "danger" : "none"}
               onClick={async () => {
@@ -252,6 +254,7 @@ const App: FC = () => {
           <Button
             disabled={flashingInProgress}
             active={demoConnect}
+            title="Replaces the connection to the device with emulation to show the application working"
             onClick={() => {
               setDemoConnect(!demoConnect);
               if (demoConnect) {
@@ -292,8 +295,8 @@ const App: FC = () => {
               <p>Connect a device, then read its partitions</p>
             </H5>
             <p>
-              After receiving the list of partitions, it will be possible to
-              drop image files for them here
+              Once you have a list of partitions, you can upload image files for them here.
+              Your browser must support WebUSB
             </p>
           </div>
         </Callout>
