@@ -11,7 +11,3 @@ body,
   background: #252a31;
 }
 
-.partitions {
-  display: flex;
-  flex-direction: column;
-}

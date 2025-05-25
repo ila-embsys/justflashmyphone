@@ -1,9 +1,27 @@
-.partition {
-    display: block !important;
+.partitions {
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
+  padding-top: 10px !important; 
+  padding-bottom: 10px !important; 
+}
+
+.partitions > * {
+  width: 85%;
+  align-content: center;
+}
+
+.partition-title {
+  width: 10em;
 }
 
 .slots {
-    display: flex;
-    flex-direction: row;
-    gap: 1em;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1em;
+}
+
+.slots > * {
+  flex: 1 1 40em;
 }

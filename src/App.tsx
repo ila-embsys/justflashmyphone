@@ -81,7 +81,7 @@ const App: FC = () => {
           slot.image.push(file);
         } else {
           for (const [slot_name, slot] of partition) {
-        slot.image.push(file);
+            slot.image.push(file);
           }
         }
       }
@@ -97,39 +97,39 @@ const App: FC = () => {
 
     envVars.items["partition-size"]
       ? Object.keys(envVars.items["partition-size"]).forEach((fullName) => {
-          const [name, suffix] = parsePartitionName(fullName);
+        const [name, suffix] = parsePartitionName(fullName);
 
-          const updateSlot = (
-            partition_name: string,
-            slot_name: string,
-            slot: Slot,
-          ) => {
-            const slots = newPartitions.get(partition_name);
+        const updateSlot = (
+          partition_name: string,
+          slot_name: string,
+          slot: Slot,
+        ) => {
+          const slots = newPartitions.get(partition_name);
 
-            if (slots) {
-              slots.set(slot_name, slot);
-            } else {
-              const slots: Slots = new Map();
-              slots.set(slot_name, slot);
-              newPartitions.set(partition_name, slots);
-            }
-          };
-
-          const isSlot = name && (suffix !== undefined);
-
-          const slot: Slot = {
-            size: envVars.items["partition-size"][fullName],
-            type: envVars.items["partition-type"][fullName],
-            image: [],
-            flashProgress: undefined,
-          };
-
-          if (isSlot) {
-            updateSlot(name, suffix, slot);
+          if (slots) {
+            slots.set(slot_name, slot);
           } else {
-            updateSlot(fullName, "", slot);
+            const slots: Slots = new Map();
+            slots.set(slot_name, slot);
+            newPartitions.set(partition_name, slots);
           }
-        })
+        };
+
+        const isSlot = name && (suffix !== undefined);
+
+        const slot: Slot = {
+          size: envVars.items["partition-size"][fullName],
+          type: envVars.items["partition-type"][fullName],
+          image: [],
+          flashProgress: undefined,
+        };
+
+        if (isSlot) {
+          updateSlot(name, suffix, slot);
+        } else {
+          updateSlot(fullName, "", slot);
+        }
+      })
       : [];
 
     console.log(newPartitions);
@@ -304,7 +304,7 @@ const App: FC = () => {
 
       {partitionCards ?? (
         <Card>
-          <CardList className="partitions">{partitionCards}</CardList>
+          <CardList>{partitionCards}</CardList>
         </Card>
       )}
     </div>

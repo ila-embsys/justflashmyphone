@@ -87,8 +87,8 @@ export const Partition: FC<PartitionProps> = ({ name, params }) => {
   });
 
   return (
-    <Card className="partition" compact key={name}>
-      <EntityTitle title={<H5>{name}</H5>} />
+    <Card className="partitions" compact key={name}>
+      <H5 className="partition-title">{name}</H5>
       <div className="slots">{slots}</div>
     </Card>
   );
