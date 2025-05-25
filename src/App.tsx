@@ -199,7 +199,8 @@ const App: FC = () => {
       <Navbar fixedToTop>
         <Navbar.Group align={Alignment.LEFT}>
           <Button
-            disabled={flashingInProgress}
+            disabled={flashingInProgress || (navigator.usb === undefined && !demoConnect)}
+            title={navigator.usb === undefined ? "Your browser does not support WebUSB\nTry a different browser or use a demo connection" : "Read device partitions to display them in the app"}
             intent={hasEnvVars ? Intent.NONE : Intent.PRIMARY}
             text={hasEnvVars ? "Clear Device Info" : "Read Device Info"}
             onClick={hasEnvVars ? clearDeviceInfo : readDeviceInfo}
