@@ -7,3 +7,6 @@
 [submodule "libs/fastboot.js"]
 	path = libs/fastboot.js
 	url = https://github.com/kdrag0n/fastboot.js.git
+[submodule "libs/mkbootimg"]
+	path = libs/mkbootimg
+	url = https://github.com/osm0sis/mkbootimg.git

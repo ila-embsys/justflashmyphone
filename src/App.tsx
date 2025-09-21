@@ -28,6 +28,8 @@ import { parsePartitionName, Partitions, Slot, Slots } from "./utils/Partition";
 import { SlotSelect } from "./Cards/SlotSelector";
 
 import emmcdl from "./Emmcdl";
+import mkbootimg from "./MkBootImg";
+import unpackbootimg from "./UnpackBootImg";
 
 const callEmscriptenModule = () => {
   try {
@@ -36,6 +38,24 @@ const callEmscriptenModule = () => {
     // await emmcdl(["-MemoryName", "ufs", "-gpt", "-p", "0", "-v"]);
   } catch (e) {
     console.warn("Looks like emmcdl doesn't work:", e);
+  }
+};
+
+const callMkBootImgModule = () => {
+  try {
+    console.log("MkBootImg is being called to see if it works");
+    mkbootimg([]);
+  } catch (e) {
+    console.warn("Looks like mkbootimg doesn't work:", e);
+  }
+};
+
+const callUnpackBootImgModule = () => {
+  try {
+    console.log("UnpackBootImg is being called to see if it works");
+    unpackbootimg([]);
+  } catch (e) {
+    console.warn("Looks like unpackbootimg doesn't work:", e);
   }
 };
 
@@ -150,6 +170,8 @@ const App: FC = () => {
       // Just a test
       // This doesn't work
       callEmscriptenModule();
+      callMkBootImgModule();
+      callUnpackBootImgModule();
     };
 
     fn();
