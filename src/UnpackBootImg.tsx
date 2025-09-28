@@ -1,16 +1,8 @@
 // ./unpackbootimg dir is artifact of building
 import EmscriptenModuleLoader from "./unpackbootimg/unpackbootimg";
 
-function main(args: string[]) {
-  EmscriptenModuleLoader({
-    arguments: args,
-    print: (text: string) => {
-      console.log("unpackbootimg stdout:", text);
-    },
-    printErr: (text: string) => {
-      console.log("unpackbootimg stderr:", text);
-    },
-  });
+function main(options: any): Promise<ReturnType<typeof EmscriptenModuleLoader>> {
+  return EmscriptenModuleLoader(options);
 }
-
+  
 export default main;
