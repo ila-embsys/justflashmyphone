@@ -22,6 +22,7 @@ import {
   getEnvVars,
 } from "./utils/FastBoot";
 import { Partition } from "./Cards/Partition";
+import { BootPartition } from "./Cards/BootPartition";
 
 import { FileWithPath, useDropzone } from "react-dropzone";
 import { parsePartitionName, Partitions, Slot, Slots } from "./utils/Partition";
@@ -184,7 +185,12 @@ const App: FC = () => {
 
   const partitionCards: JSX.Element[] = [];
 
-  for (const [partition_name, slots] of partitions.items) {
+  // Rearrange partitions to put 'boot' first
+  const sortedPartitions = new Map([...partitions.items.entries()].sort(([a], [b]) => {
+      if (a === 'boot') return -1; if (b === 'boot') return 1; return a.localeCompare(b);
+  }));
+
+  for (const [partition_name, slots] of sortedPartitions) {
     let params = [];
 
     for (const [slot_name, slot] of slots) {
@@ -194,9 +200,13 @@ const App: FC = () => {
       });
     }
 
-    const card = (
-      <Partition key={partition_name} name={partition_name} params={params} />
-    );
+    const card =
+      partition_name === "boot" ? (
+        <BootPartition key={partition_name} name={partition_name} params={params} />
+      ) : (
+        <Partition key={partition_name} name={partition_name} params={params} />
+      );
+
 
     partitionCards.push(card);
   }
