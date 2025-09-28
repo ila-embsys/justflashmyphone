@@ -281,77 +281,76 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@blueprintjs/colors@npm:^5.1.5":
-  version: 5.1.5
-  resolution: "@blueprintjs/colors@npm:5.1.5"
+"@blueprintjs/colors@npm:^5.1.9":
+  version: 5.1.9
+  resolution: "@blueprintjs/colors@npm:5.1.9"
   dependencies:
     tslib: "npm:~2.6.2"
-  checksum: 10/9179c6d4ecae41f36578c5f4def81dbe54ecf26daa8f033d09ff996085f5327e181956e9561733b700a61f58b296a6f25b7991cd57888b2c93c9b3ae5d989416
+  checksum: 10/658c0e6fa6a733ff6c82646304920e9d77190d955e3c006a38f53ed908d1069a4eef6d12505568f40ed1d1354f334cf93a358124a8e50b0e629af494f4cd74d8
   languageName: node
   linkType: hard
 
-"@blueprintjs/core@npm:^5.16.2, @blueprintjs/core@npm:^5.16.4":
-  version: 5.16.4
-  resolution: "@blueprintjs/core@npm:5.16.4"
+"@blueprintjs/core@npm:^6.3.1":
+  version: 6.3.1
+  resolution: "@blueprintjs/core@npm:6.3.1"
   dependencies:
-    "@blueprintjs/colors": "npm:^5.1.5"
-    "@blueprintjs/icons": "npm:^5.17.1"
+    "@blueprintjs/colors": "npm:^5.1.9"
+    "@blueprintjs/icons": "npm:^6.1.0"
     "@popperjs/core": "npm:^2.11.8"
     classnames: "npm:^2.3.1"
     normalize.css: "npm:^8.0.1"
     react-popper: "npm:^2.3.0"
     react-transition-group: "npm:^4.4.5"
-    react-uid: "npm:^2.3.3"
     tslib: "npm:~2.6.2"
     use-sync-external-store: "npm:^1.2.0"
   peerDependencies:
-    "@types/react": ^16.14.41 || 17 || 18
-    react: ^16.8 || 17 || 18
-    react-dom: ^16.8 || 17 || 18
+    "@types/react": 18
+    react: 18
+    react-dom: 18
   peerDependenciesMeta:
     "@types/react":
       optional: true
   bin:
     upgrade-blueprint-2.0.0-rename: scripts/upgrade-blueprint-2.0.0-rename.sh
     upgrade-blueprint-3.0.0-rename: scripts/upgrade-blueprint-3.0.0-rename.sh
-  checksum: 10/b593a348f91bf1e2f106b4a6e4b79d2b74d1eb7b92e7ee53d13665029626c729c0e00601e16d91ddd08658a6d5e0bff9c2ae7179a64f9cf1f61bc1acab9d871c
+  checksum: 10/c0bc03c0b7c70544dd750aea842c3dba2e9f6e85e7137bbb0df95616934e431688cdfa85e65757147c60df14374acd876ab52b8243aa5db2bc5799b2beae4486
   languageName: node
   linkType: hard
 
-"@blueprintjs/icons@npm:^5.16.0, @blueprintjs/icons@npm:^5.17.1":
-  version: 5.17.1
-  resolution: "@blueprintjs/icons@npm:5.17.1"
+"@blueprintjs/icons@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "@blueprintjs/icons@npm:6.1.0"
   dependencies:
     change-case: "npm:^4.1.2"
     classnames: "npm:^2.3.1"
     tslib: "npm:~2.6.2"
   peerDependencies:
-    "@types/react": ^16.14.41 || 17 || 18
-    react: ^16.8 || 17 || 18
-    react-dom: ^16.8 || 17 || 18
+    "@types/react": 18
+    react: 18
+    react-dom: 18
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10/f382da23746dccc7b2e87040cb64b5cfafd4076d144188173ee89d7c71cbddc2722716c967818f56e03239a4ca7b253682ca27ac225307027920488e7a568f75
+  checksum: 10/82ef37caeb999a22da56f0256f0ac29954e48aa156a4181d1a5f7186acb57e2f37f579b152debc5360d4e709d000ac819f56515b7639d58d7cb07e35cc741edc
   languageName: node
   linkType: hard
 
-"@blueprintjs/select@npm:^5.3.9":
-  version: 5.3.9
-  resolution: "@blueprintjs/select@npm:5.3.9"
+"@blueprintjs/select@npm:^6.0.5":
+  version: 6.0.5
+  resolution: "@blueprintjs/select@npm:6.0.5"
   dependencies:
-    "@blueprintjs/core": "npm:^5.16.4"
-    "@blueprintjs/icons": "npm:^5.17.1"
+    "@blueprintjs/core": "npm:^6.3.1"
+    "@blueprintjs/icons": "npm:^6.1.0"
     classnames: "npm:^2.3.1"
     tslib: "npm:~2.6.2"
   peerDependencies:
-    "@types/react": ^16.14.41 || 17 || 18
-    react: ^16.8 || 17 || 18
-    react-dom: ^16.8 || 17 || 18
+    "@types/react": 18
+    react: 18
+    react-dom: 18
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10/9bab4c364f532ed8a00f3071766f158d660d2d5746b682627acc24fbefdc57cb956d09bbdf9e529891980b113f68d9e6a09a54ff0d227be3e2c410204269e99a
+  checksum: 10/3d32e28ed48ed7d801ba2633189accfd4f048cca06268e7b0d2a2c91994a1e54c1903f2bb3711e78b8ee7a2c2ae41816096a20aa13d6559b184dee3bcbd4ec92
   languageName: node
   linkType: hard
 
@@ -1254,10 +1253,10 @@ __metadata:
 
 "android-fastboot@file:libs/fastboot.js::locator=justflashmyphone%40workspace%3A.":
   version: 1.1.3
-  resolution: "android-fastboot@file:libs/fastboot.js#libs/fastboot.js::hash=594cbb&locator=justflashmyphone%40workspace%3A."
+  resolution: "android-fastboot@file:libs/fastboot.js#libs/fastboot.js::hash=168323&locator=justflashmyphone%40workspace%3A."
   dependencies:
     "@zip.js/zip.js": "npm:2.2.27"
-  checksum: 10/bf04945e6754751a35b9f5251968f6eeb2d16d9ad173e9d54dc891f8290feeba8cfa37fced8227a7c62e7fe7daa2f9f37a8c96d1bc9b069ddd2609c3d0559a3a
+  checksum: 10/fb45981233fa3efd5b5c1271f0d3b4f959c86ac6ac74f558cc6b2bca44af93ba6657c9a4ce8bcd274931e4f4c1f8c7019f9211457f30960a4a9deff8fc483a7d
   languageName: node
   linkType: hard
 
@@ -3270,9 +3269,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "justflashmyphone@workspace:."
   dependencies:
-    "@blueprintjs/core": "npm:^5.16.2"
-    "@blueprintjs/icons": "npm:^5.16.0"
-    "@blueprintjs/select": "npm:^5.3.9"
+    "@blueprintjs/core": "npm:^6.3.1"
+    "@blueprintjs/icons": "npm:^6.1.0"
+    "@blueprintjs/select": "npm:^6.0.5"
     "@types/react": "npm:^18"
     "@types/react-dom": "npm:^18"
     "@types/w3c-web-usb": "npm:^1.0.10"
@@ -4081,21 +4080,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-uid@npm:^2.3.3":
-  version: 2.4.0
-  resolution: "react-uid@npm:2.4.0"
-  dependencies:
-    tslib: "npm:^2.0.0"
-  peerDependencies:
-    "@types/react": ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-  peerDependenciesMeta:
-    "@types/react":
-      optional: true
-  checksum: 10/65323de49c74f2ef44c1ddd34e320391076480588e4e86b7df8c0e508286885730b9f99a0d7057ec4d5cbd15069efd64fb23dd5866a73719afc133df1c451df3
-  languageName: node
-  linkType: hard
-
 "react@npm:^18":
   version: 18.3.1
   resolution: "react@npm:18.3.1"
@@ -4770,7 +4754,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.0.0, tslib@npm:^2.0.3, tslib@npm:^2.6.2, tslib@npm:^2.7.0":
+"tslib@npm:^2.0.3, tslib@npm:^2.6.2, tslib@npm:^2.7.0":
   version: 2.8.1
   resolution: "tslib@npm:2.8.1"
   checksum: 10/3e2e043d5c2316461cb54e5c7fe02c30ef6dccb3384717ca22ae5c6b5bc95232a6241df19c622d9c73b809bea33b187f6dbc73030963e29950c2141bc32a79f7

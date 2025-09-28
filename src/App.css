@@ -6,7 +6,7 @@ body,
   height: 100%;
 }
 
-.app.bp5-dark {
+.app.bp6-dark {
   /* $dark-gray2, see https://github.com/palantir/blueprint/blob/6d86a19b9e858c4cde66a253b1172dcf896872d8/packages/colors/src/_colors.scss#L13 */
   background: #252a31;
 }
