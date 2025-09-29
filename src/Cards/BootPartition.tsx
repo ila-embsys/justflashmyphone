@@ -1,4 +1,3 @@
-
 import {
   Button,
   Card,
@@ -12,6 +11,11 @@ import {
   Collapse,
   Icon,
   Tag,
+  CompoundTag,
+  H6,
+  CardList,
+  Elevation,
+  EntityTitle,
 } from "@blueprintjs/core";
 import { Fragment, useEffect, useState } from "react";
 
@@ -19,6 +23,7 @@ import { FileWithPath } from "react-dropzone";
 import { Slot } from "../utils/Partition";
 import unpackbootimg from "../UnpackBootImg";
 import { runEmscripten } from "../utils/Emscripten";
+import { prettyBytes } from "../utils/Common";
 
 export interface BootImageContents {
   params: Record<string, string>;
@@ -41,14 +46,61 @@ interface BootPartitionProps {
 }
 
 const PAGE_SIZES = [
-  { value: 2048, label: "2K" },
-  { value: 4096, label: "4K" },
-  { value: 8192, label: "8K" },
-  { value: 16384, label: "16K" },
-  { value: 32768, label: "32K" },
-  { value: 65536, label: "64K" },
-  { value: 131072, label: "128K" },
+  { value: "2048", label: "2K" },
+  { value: "4096", label: "4K" },
+  { value: "8192", label: "8K" },
+  { value: "16384", label: "16K" },
+  { value: "32768", label: "32K" },
+  { value: "65536", label: "64K" },
+  { value: "131072", label: "128K" },
 ];
+
+const EditableCompoundTag = ({
+  label,
+  value,
+  onConfirm,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onConfirm: (value: string) => void;
+  placeholder?: string;
+}) => {
+  return (
+    <CompoundTag minimal leftContent={label}>
+      <EditableText
+        value={value}
+        onConfirm={onConfirm}
+        placeholder={placeholder}
+      />
+    </CompoundTag>
+  );
+};
+
+const SelectableCompoundTag = ({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  options: { value: string; label: string }[];
+  onChange: (value: string) => void;
+}) => {
+  return (
+    <CompoundTag minimal leftContent={label}>
+      <HTMLSelect
+        minimal
+        style={{ height: "unset", fontSize: "12px" }}
+        value={value}
+        onChange={(e) => onChange(e.currentTarget.value)}
+        options={options}
+        iconProps={{ style: { top: "0px" } }}
+      />
+    </CompoundTag>
+  );
+}
 
 const BinaryPart = ({
   name,
@@ -83,18 +135,20 @@ const BinaryPart = ({
   };
 
   return (
-    <Card style={{ marginTop: "10px" }}>
-      <H5>{name.charAt(0).toUpperCase() + name.slice(1)}</H5>
-      <FormGroup label="Offset" inline>
-        <EditableText value={offset} disabled />
-      </FormGroup>
-      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+    <Card style={{ display: "flex", gap: "10px", padding: "10px" }}>
+      <H6>{name.charAt(0).toUpperCase() + name.slice(1)}</H6>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+        <EditableCompoundTag
+          label="Offset"
+          value={offset}
+          onConfirm={(val) => { /* TODO: Implement offset change logic */ }}
+        />
         <FileInput
+          size="small"
           text={file ? file.name : `Drop or select ${name}...`}
           onInputChange={handleFileChange}
-          fill
         />
-        <Button icon="download" onClick={downloadFile} disabled={!file} />
+        <Button size="small" icon="download" onClick={downloadFile} disabled={!file} />
       </div>
     </Card>
   );
@@ -108,21 +162,23 @@ const CmdlineCard = ({
   onCmdlineChange: (value: string) => void;
 }) => {
   return (
-    <Card style={{ marginTop: "10px" }}>
+    <Card style={{ marginTop: "10px", gap: "10px", padding: "10px" }}>
       <H5>Command Line</H5>
-      <p>
-        <Icon icon="info-sign" /> Editing the command line will be available in a
-        future update.
-      </p>
-      <EditableText
-        value={cmdline}
-        onConfirm={onCmdlineChange}
-        onChange={onCmdlineChange}
-        multiline
-        minLines={3}
-        maxLines={10}
-        disabled // To be enabled later
-      />
+      <div style={{ display: "flex", flexWrap: "wrap" }}>
+        <p>
+          <Icon icon="info-sign" /> Editing the command line will be available in a
+          future update.
+        </p>
+        <EditableText
+          value={cmdline}
+          onConfirm={onCmdlineChange}
+          onChange={onCmdlineChange}
+          multiline
+          minLines={3}
+          maxLines={10}
+          disabled // To be enabled later
+        />
+      </div>
     </Card>
   );
 };
@@ -140,70 +196,63 @@ const UnpackedBootImageView = ({
   const headerVersion = unpacked.params["BOARD_HEADER_VERSION"];
 
   return (
-    <Fragment>
-      <Card>
-        <H5>Image Header</H5>
-        {headerVersion !== "2" && (
-          <Callout intent="warning" title="Unsupported Header Version">
-            <p>
-              The header version of this image is <b>{headerVersion}</b>. Only
-              version 2 is fully supported. Proceed with caution.
-            </p>
-          </Callout>
-        )}
-        <div style={{ display: "flex", gap: "20px", marginTop: "10px" }}>
-          <FormGroup label="Header Version">
-            <Tag large>{unpacked.params["BOARD_HEADER_VERSION"]}</Tag>
-          </FormGroup>
-          <FormGroup label="Header Size">
-            <Tag large>{unpacked.params["BOARD_HEADER_SIZE"]} bytes</Tag>
-          </FormGroup>
-          <FormGroup label="Hash Type">
-            <Tag large>{unpacked.params["BOARD_HASH_TYPE"]}</Tag>
-          </FormGroup>
+    <CardList bordered={false} compact>
+      <Card style={{ display: "flex", gap: "10px", padding: "10px" }}>
+        <H6>Image Header</H6>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+          {headerVersion !== "2" && (
+            <Callout intent="warning" title="Unsupported Header Version">
+              <p>
+                The header version of this image is <b>{headerVersion}</b>. Only
+                version 2 is fully supported. Proceed with caution.
+              </p>
+            </Callout>
+          )}
+          <Tag minimal>Version: {unpacked.params["BOARD_HEADER_VERSION"]}</Tag>
+          <Tag minimal>Size: {unpacked.params["BOARD_HEADER_SIZE"]} bytes</Tag>
+          <Tag minimal>Hash Type: {unpacked.params["BOARD_HASH_TYPE"]}</Tag>
         </div>
       </Card>
 
-      <Card style={{ marginTop: "10px" }}>
-        <H5>Board Information</H5>
-        <FormGroup label="Board Name" inline>
-          <EditableText
+      <Card style={{ display: "flex", gap: "10px", padding: "10px" }}>
+        <H6>Board Information</H6>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+          <EditableCompoundTag
+            label="Name"
             value={unpacked.params["BOARD_NAME"]}
             onConfirm={(val) => onParamChange("BOARD_NAME", val)}
-            onChange={(val) => onParamChange("BOARD_NAME", val)}
             placeholder="N/A"
           />
-        </FormGroup>
-        <FormGroup label="OS Version" inline>
-          <EditableText
+          <EditableCompoundTag
+            label="OS Version"
             value={unpacked.params["BOARD_OS_VERSION"]}
             onConfirm={(val) => onParamChange("BOARD_OS_VERSION", val)}
-            onChange={(val) => onParamChange("BOARD_OS_VERSION", val)}
           />
-        </FormGroup>
-        <FormGroup label="OS Patch Level" inline>
-          <EditableText
+          <EditableCompoundTag
+            label="OS Patch Level"
             value={unpacked.params["BOARD_OS_PATCH_LEVEL"]}
             onConfirm={(val) => onParamChange("BOARD_OS_PATCH_LEVEL", val)}
-            onChange={(val) => onParamChange("BOARD_OS_PATCH_LEVEL", val)}
           />
-        </FormGroup>
+        </div>
       </Card>
 
-      <Card style={{ marginTop: "10px" }}>
-        <H5>Memory Layout</H5>
-        <FormGroup label="Kernel Base Address" inline>
-          <EditableText value={unpacked.params["BOARD_KERNEL_BASE"]} disabled />
-        </FormGroup>
-        <FormGroup label="Page Size" inline>
-          <HTMLSelect
-            value={unpacked.params["BOARD_PAGE_SIZE"]}
-            onChange={(e) =>
-              onParamChange("BOARD_PAGE_SIZE", e.currentTarget.value)
-            }
-            options={PAGE_SIZES}
+      <Card style={{ display: "flex", gap: "10px", padding: "10px" }}>
+        <H6>Memory Layout</H6>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+          <EditableCompoundTag
+            label="Base"
+            value={unpacked.params["BOARD_KERNEL_BASE"]}
+            onConfirm={(val) => onParamChange("BOARD_KERNEL_BASE", val)}
+            placeholder="0x00000000"
           />
-        </FormGroup>
+          <SelectableCompoundTag
+            label="Page Size"
+            value={unpacked.params["BOARD_PAGE_SIZE"]}
+            options={PAGE_SIZES}
+            onChange={(val) => onParamChange("BOARD_PAGE_SIZE", val)}
+          >
+          </SelectableCompoundTag>
+        </div>
       </Card>
 
       <BinaryPart
@@ -230,8 +279,10 @@ const UnpackedBootImageView = ({
         onCmdlineChange={(val) => onParamChange("BOARD_KERNEL_CMDLINE", val)}
       />
 
-      <div style={{ marginTop: "10px" }}>
+      <div style={{ margin: "10px" }}>
         <Button
+          size="small"
+          variant="minimal"
           alignText="left"
           fill
           icon={isAdvancedOpen ? "caret-down" : "caret-right"}
@@ -240,23 +291,21 @@ const UnpackedBootImageView = ({
           Advanced Offsets
         </Button>
         <Collapse isOpen={isAdvancedOpen}>
-          <Card>
-            <FormGroup label="Second Bootloader Offset" inline>
-              <EditableText
-                value={unpacked.params["BOARD_SECOND_OFFSET"]}
-                disabled
-              />
-            </FormGroup>
-            <FormGroup label="Tags Offset" inline>
-              <EditableText
-                value={unpacked.params["BOARD_TAGS_OFFSET"]}
-                disabled
-              />
-            </FormGroup>
-          </Card>
+          <div style={{ display: "flex", gap: "10px", padding: "10px" }}>
+            <EditableCompoundTag
+              label="Second Bootloader Offset"
+              value={unpacked.params["BOARD_SECOND_OFFSET"]}
+              onConfirm={(val) => onParamChange("BOARD_SECOND_OFFSET", val)}
+            />
+            <EditableCompoundTag
+              label="Tags Offset"
+              value={unpacked.params["BOARD_TAGS_OFFSET"]}
+              onConfirm={(val) => onParamChange("BOARD_TAGS_OFFSET", val)}
+            />
+          </div>
         </Collapse>
       </div>
-    </Fragment>
+    </CardList >
   );
 };
 
@@ -300,6 +349,15 @@ export const BootPartition = ({ name, params }: BootPartitionProps) => {
   useEffect(() => {
     const unpackImage = async (param: BootPartitionParams, index: number) => {
       const slot = param.slot as BootSlot;
+      const tags = (
+        <Fragment>
+          <CompoundTag leftContent="Size">
+            {prettyBytes(param.slot.size)}
+          </CompoundTag>
+          <CompoundTag leftContent="Type">{param.slot.type}</CompoundTag>
+        </Fragment>
+      );
+
       if (slot.image.length > 0 && !slot.unpacked) {
         const file = slot.image[0];
         const fileData = await file.arrayBuffer();
@@ -337,29 +395,39 @@ export const BootPartition = ({ name, params }: BootPartitionProps) => {
   const slots = localParams.map((param, index) => {
     const slot = param.slot as BootSlot;
     const title =
-      param.suffix.length > 0 ? <H5>{param.suffix.toUpperCase()}</H5> : null;
+      param.suffix.length > 0 ? <H5>{param.suffix.toUpperCase()}</H5> : <></>;
+    const tags = (
+      <Fragment>
+        <CompoundTag leftContent="Size">
+          {prettyBytes(param.slot.size)}
+        </CompoundTag>
+        <CompoundTag leftContent="Type">{param.slot.type}</CompoundTag>
+      </Fragment>
+    );
 
     return (
       <Callout key={param.suffix} compact>
-        {title}
-        {slot.flashProgress !== undefined && (
-          <ProgressBar value={slot.flashProgress} />
-        )}
-        {slot.unpacked ? (
-          <UnpackedBootImageView
-            unpacked={slot.unpacked}
-            onParamChange={(key, value) => handleParamChange(index, key, value)}
-            onFileChange={(partName, newFile) =>
-              handleFileChange(index, partName, newFile)
-            }
-          />
-        ) : (
-          <p>
-            {slot.image.length > 0
-              ? `Image selected: ${slot.image[0].name}. Unpacking...`
-              : "Drop a boot.img file here to see its contents."}
-          </p>
-        )}
+        <EntityTitle title={title} tags={tags} />
+        <div style={{ marginTop: "10px" }}>
+          {slot.flashProgress !== undefined && (
+            <ProgressBar value={slot.flashProgress} />
+          )}
+          {slot.unpacked ? (
+            <UnpackedBootImageView
+              unpacked={slot.unpacked}
+              onParamChange={(key, value) => handleParamChange(index, key, value)}
+              onFileChange={(partName, newFile) =>
+                handleFileChange(index, partName, newFile)
+              }
+            />
+          ) : (
+            <p>
+              {slot.image.length > 0
+                ? `Image selected: ${slot.image[0].name}. Unpacking...`
+                : "Drop a boot.img file here to see its contents."}
+            </p>
+          )}
+        </div>
       </Callout>
     );
   });
