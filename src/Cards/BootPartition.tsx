@@ -25,6 +25,7 @@ import unpackbootimg from "../UnpackBootImg";
 import { runEmscripten } from "../utils/Emscripten";
 import { prettyBytes } from "../utils/Common";
 
+import "./BootPartition.css";
 export interface BootImageContents {
   params: Record<string, string>;
   files: Record<string, File>;
@@ -72,6 +73,7 @@ const EditableCompoundTag = ({
         value={value}
         onConfirm={onConfirm}
         placeholder={placeholder}
+        minWidth={0}
       />
     </CompoundTag>
   );
@@ -89,14 +91,15 @@ const SelectableCompoundTag = ({
   onChange: (value: string) => void;
 }) => {
   return (
-    <CompoundTag minimal leftContent={label}>
+    <CompoundTag minimal leftContent={label} className="selectable-compound-tag">
       <HTMLSelect
         minimal
-        style={{ height: "unset", fontSize: "12px" }}
+        className="selectable-compound-tag-select"
         value={value}
         onChange={(e) => onChange(e.currentTarget.value)}
         options={options}
-        iconProps={{ style: { top: "0px" } }}
+        iconProps={{ style: { top: "0px" } }} // This ensures vertical alignment
+        style={{ height: "unset", fontSize: "12px" }}
       />
     </CompoundTag>
   );
@@ -135,21 +138,26 @@ const BinaryPart = ({
   };
 
   return (
-    <Card style={{ display: "flex", gap: "10px", padding: "10px" }}>
-      <H6>{name.charAt(0).toUpperCase() + name.slice(1)}</H6>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-        <EditableCompoundTag
-          label="Offset"
-          value={offset}
-          onConfirm={(val) => { /* TODO: Implement offset change logic */ }}
-        />
-        <FileInput
-          size="small"
-          text={file ? file.name : `Drop or select ${name}...`}
-          onInputChange={handleFileChange}
-        />
-        <Button size="small" icon="download" onClick={downloadFile} disabled={!file} />
+    <Card className="binary-part-card">
+      <div className="binary-part-header">
+        <div className="binary-part-header-content">
+          <H6>{name.charAt(0).toUpperCase() + name.slice(1)}</H6>
+          <EditableCompoundTag
+            label="Offset"
+            value={offset}
+            onConfirm={(val) => {
+              /* TODO: Implement offset change logic */
+            }}
+          />
+        </div>
+        <Button icon="download" onClick={downloadFile} disabled={!file} />
       </div>
+      <FileInput
+        fill
+        className="file-input-rtl"
+        text={file ? file.name : `Select ${name}...`}
+        onInputChange={handleFileChange}
+      />
     </Card>
   );
 };
@@ -162,9 +170,9 @@ const CmdlineCard = ({
   onCmdlineChange: (value: string) => void;
 }) => {
   return (
-    <Card style={{ marginTop: "10px", gap: "10px", padding: "10px" }}>
+    <Card className="cmdline-card">
       <H5>Command Line</H5>
-      <div style={{ display: "flex", flexWrap: "wrap" }}>
+      <div className="cmdline-card-content">
         <p>
           <Icon icon="info-sign" /> Editing the command line will be available in a
           future update.
@@ -196,33 +204,37 @@ const UnpackedBootImageView = ({
   const headerVersion = unpacked.params["BOARD_HEADER_VERSION"];
 
   return (
-    <CardList bordered={false} compact>
-      <Card style={{ display: "flex", gap: "10px", padding: "10px" }}>
-        <H6>Image Header</H6>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-          {headerVersion !== "2" && (
-            <Callout intent="warning" title="Unsupported Header Version">
-              <p>
-                The header version of this image is <b>{headerVersion}</b>. Only
-                version 2 is fully supported. Proceed with caution.
-              </p>
-            </Callout>
-          )}
-          <Tag minimal>Version: {unpacked.params["BOARD_HEADER_VERSION"]}</Tag>
-          <Tag minimal>Size: {unpacked.params["BOARD_HEADER_SIZE"]} bytes</Tag>
-          <Tag minimal>Hash Type: {unpacked.params["BOARD_HASH_TYPE"]}</Tag>
-        </div>
-      </Card>
+    <div className="unpacked-boot-image-view">
+      <div className="card-row">
+        <Card className="info-card">
+          <div className="info-card-header">
+            <H6>Image Header</H6>
+            {headerVersion !== "2" && (
+              <Callout intent="warning" title="Unsupported Header Version">
+                <p>
+                  The header version of this image is <b>{headerVersion}</b>. Only
+                  version 2 is fully supported. Proceed with caution.
+                </p>
+              </Callout>
+            )}
+            <CompoundTag minimal leftContent="Version">{unpacked.params["BOARD_HEADER_VERSION"]}</CompoundTag>
+          </div>
 
-      <Card style={{ display: "flex", gap: "10px", padding: "10px" }}>
-        <H6>Board Information</H6>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-          <EditableCompoundTag
-            label="Name"
-            value={unpacked.params["BOARD_NAME"]}
-            onConfirm={(val) => onParamChange("BOARD_NAME", val)}
-            placeholder="N/A"
-          />
+          <CompoundTag minimal leftContent="Size">{unpacked.params["BOARD_HEADER_SIZE"]} bytes</CompoundTag>
+          <CompoundTag minimal leftContent="Hash Type">{unpacked.params["BOARD_HASH_TYPE"]}</CompoundTag>
+        </Card>
+
+        <Card className="info-card">
+          <div className="info-card-header">
+            <H6>Board Information</H6>
+            <EditableCompoundTag
+              label="Name"
+              value={unpacked.params["BOARD_NAME"]}
+              onConfirm={(val) => onParamChange("BOARD_NAME", val)}
+              placeholder="N/A"
+            />
+          </div>
+
           <EditableCompoundTag
             label="OS Version"
             value={unpacked.params["BOARD_OS_VERSION"]}
@@ -233,12 +245,10 @@ const UnpackedBootImageView = ({
             value={unpacked.params["BOARD_OS_PATCH_LEVEL"]}
             onConfirm={(val) => onParamChange("BOARD_OS_PATCH_LEVEL", val)}
           />
-        </div>
-      </Card>
+        </Card>
 
-      <Card style={{ display: "flex", gap: "10px", padding: "10px" }}>
-        <H6>Memory Layout</H6>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+        <Card className="info-card">
+          <H6>Memory Layout</H6>
           <EditableCompoundTag
             label="Base"
             value={unpacked.params["BOARD_KERNEL_BASE"]}
@@ -252,34 +262,37 @@ const UnpackedBootImageView = ({
             onChange={(val) => onParamChange("BOARD_PAGE_SIZE", val)}
           >
           </SelectableCompoundTag>
-        </div>
-      </Card>
+          <div className="info-card-spacer" />
+        </Card>
+      </div>
 
-      <BinaryPart
-        name="kernel"
-        file={unpacked.files["kernel"]}
-        offset={unpacked.params["BOARD_KERNEL_OFFSET"]}
-        onFileChange={onFileChange}
-      />
-      <BinaryPart
-        name="ramdisk"
-        file={unpacked.files["ramdisk"]}
-        offset={unpacked.params["BOARD_RAMDISK_OFFSET"]}
-        onFileChange={onFileChange}
-      />
-      <BinaryPart
-        name="dtb"
-        file={unpacked.files["dtb"]}
-        offset={unpacked.params["BOARD_DTB_OFFSET"]}
-        onFileChange={onFileChange}
-      />
+      <div className="card-row">
+        <BinaryPart
+          name="kernel"
+          file={unpacked.files["kernel"]}
+          offset={unpacked.params["BOARD_KERNEL_OFFSET"]}
+          onFileChange={onFileChange}
+        />
+        <BinaryPart
+          name="ramdisk"
+          file={unpacked.files["ramdisk"]}
+          offset={unpacked.params["BOARD_RAMDISK_OFFSET"]}
+          onFileChange={onFileChange}
+        />
+        <BinaryPart
+          name="dtb"
+          file={unpacked.files["dtb"]}
+          offset={unpacked.params["BOARD_DTB_OFFSET"]}
+          onFileChange={onFileChange}
+        />
+      </div>
 
       <CmdlineCard
         cmdline={unpacked.params["BOARD_KERNEL_CMDLINE"]}
         onCmdlineChange={(val) => onParamChange("BOARD_KERNEL_CMDLINE", val)}
       />
 
-      <div style={{ margin: "10px" }}>
+      <div className="advanced-offsets-container">
         <Button
           size="small"
           variant="minimal"
@@ -291,7 +304,7 @@ const UnpackedBootImageView = ({
           Advanced Offsets
         </Button>
         <Collapse isOpen={isAdvancedOpen}>
-          <div style={{ display: "flex", gap: "10px", padding: "10px" }}>
+          <div className="card-row">
             <EditableCompoundTag
               label="Second Bootloader Offset"
               value={unpacked.params["BOARD_SECOND_OFFSET"]}
@@ -305,7 +318,7 @@ const UnpackedBootImageView = ({
           </div>
         </Collapse>
       </div>
-    </CardList >
+    </div>
   );
 };
 
