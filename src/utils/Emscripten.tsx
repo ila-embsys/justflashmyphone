@@ -89,7 +89,7 @@ export const runEmscripten = async (
         stdout.push(text);
       },
       printErr: (text: string) => {
-        console.warn("emscripten stderr:", text);
+        console.log("emscripten stderr:", text);
         stderr.push(text);
       },
       onExit: onExit!,
