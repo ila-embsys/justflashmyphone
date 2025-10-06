@@ -28,35 +28,43 @@ import { FileWithPath, useDropzone } from "react-dropzone";
 import { parsePartitionName, Partitions, Slot, Slots } from "./utils/Partition";
 import { SlotSelect } from "./Cards/SlotSelector";
 
+import { runEmscripten } from "./utils/Emscripten";
 import emmcdl from "./Emmcdl";
 import mkbootimg from "./MkBootImg";
 import unpackbootimg from "./UnpackBootImg";
 
-const callEmscriptenModule = () => {
+const callEmscriptenModule = async () => {
   try {
-    console.log("Emmcdl is being called to see if it works");
-    emmcdl(["-info"]);
-    // await emmcdl(["-MemoryName", "ufs", "-gpt", "-p", "0", "-v"]);
+    console.log("Calling emmcdl via runEmscripten...");
+    const result = await runEmscripten(
+      emmcdl,
+      [], // No input files
+      ["-info"], // ["-MemoryName", "ufs", "-gpt", "-p", "0", "-v"]
+      [] // No output files
+    );
+    console.log("emmcdl stdout:", result.stdout.join("\n"));
   } catch (e) {
-    console.warn("Looks like emmcdl doesn't work:", e);
+    console.warn("emmcdl execution failed:", e);
   }
 };
 
-const callMkBootImgModule = () => {
+const callMkBootImgModule = async () => {
   try {
-    console.log("MkBootImg is being called to see if it works");
-    mkbootimg([]);
+    console.log("Calling mkbootimg via runEmscripten...");
+    const result = await runEmscripten(mkbootimg, [], ["--help"], []);
+    console.log("mkbootimg stdout:", result.stdout.join("\n"));
   } catch (e) {
-    console.warn("Looks like mkbootimg doesn't work:", e);
+    console.warn("mkbootimg execution failed:", e);
   }
 };
 
-const callUnpackBootImgModule = () => {
+const callUnpackBootImgModule = async () => {
   try {
-    console.log("UnpackBootImg is being called to see if it works");
-    unpackbootimg([]);
+    console.log("Calling unpackbootimg via runEmscripten...");
+    const result = await runEmscripten(unpackbootimg, [], ["--help"], []);
+    console.log("unpackbootimg stdout:", result.stdout.join("\n"));
   } catch (e) {
-    console.warn("Looks like unpackbootimg doesn't work:", e);
+    console.warn("unpackbootimg execution failed:", e);
   }
 };
 
