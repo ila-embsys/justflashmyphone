@@ -437,7 +437,7 @@ export const BootPartition = ({ name, params }: BootPartitionProps) => {
             <p>
               {slot.image.length > 0
                 ? `Image selected: ${slot.image[0].name}. Unpacking...`
-                : "Drop a boot.img file here to see its contents."}
+                : null}
             </p>
           )}
         </div>
