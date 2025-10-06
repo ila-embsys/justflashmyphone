@@ -269,19 +269,19 @@ const UnpackedBootImageView = ({
       <div className="card-row">
         <BinaryPart
           name="kernel"
-          file={unpacked.files["kernel"]}
+          file={unpacked.files["boot.img-kernel"]}
           offset={unpacked.params["BOARD_KERNEL_OFFSET"]}
           onFileChange={onFileChange}
         />
         <BinaryPart
           name="ramdisk"
-          file={unpacked.files["ramdisk"]}
+          file={unpacked.files["boot.img-ramdisk"]}
           offset={unpacked.params["BOARD_RAMDISK_OFFSET"]}
           onFileChange={onFileChange}
         />
         <BinaryPart
           name="dtb"
-          file={unpacked.files["dtb"]}
+          file={unpacked.files["boot.img-dtb"]}
           offset={unpacked.params["BOARD_DTB_OFFSET"]}
           onFileChange={onFileChange}
         />
@@ -377,9 +377,9 @@ export const BootPartition = ({ name, params }: BootPartitionProps) => {
 
         const result = await runEmscripten(
           unpackbootimg,
-          [{ path: "/input.img", data: fileData }],
-          ["-i", "/input.img"],
-          ["kernel", "ramdisk", "dtb"],
+          [{ path: "/boot.img", data: fileData }],
+          ["-i", "/boot.img"],
+          ["boot.img-kernel", "boot.img-ramdisk", "boot.img-dtb"],
         );
 
         const parsedParams: Record<string, string> = {};
