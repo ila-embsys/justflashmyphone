@@ -60,41 +60,60 @@ export const runEmscripten = async (
   ];
 
   try {
-    await new Promise<void>(async (resolve, reject) => {
-      module = await moduleLoader({
-        arguments: args,
-        preRun: preRun,
-        postRun: [],
-        print: (text: string) => {
-          console.log("emscripten stdout:", text);
-          stdout.push(text);
-        },
-        printErr: (text: string) => {
-          console.warn("emscripten stderr:", text);
-          stderr.push(text);
-        },
-        onExit: (code) => {
-          if (code === 0) {
-            resolve();
-          } else {
-            const errorMessage = stderr.join("\n");
-            reject(new Error(`Emscripten module exited with code ${code}:\n${errorMessage}`));
-          }
-        },
-        onAbort: (reason) => {
-          const errorMessage = stderr.join("\n");
-          reject(new Error(`Emscripten module aborted: ${reason}\n${errorMessage}`));
-        },
-        exit: (code: number) => { }, // Dummy exit function to satisfy the type
-        // This is a placeholder. The module loader will call the C main function automatically.
-        callMain: (args: string[]) => { },
-      });
+    let onExit: (code: number) => void;
+    let onAbort: (reason: any) => void;
 
+    const exitPromise = new Promise<void>((resolve, reject) => {
+      onExit = (code: number) => {
+        console.log("Emscripten module is exiting with code:", code);
+        if (code === 0) {
+          resolve();
+        }
+        else {
+          const errorMessage = stderr.join("\n");
+          reject(new Error(`Emscripten module exited with code ${code}:\n${errorMessage}`));
+        }
+      };
+      onAbort = (reason: any) => {
+        const errorMessage = stderr.join("\n");
+        reject(new Error(`Emscripten module aborted: ${reason}\n${errorMessage}`));
+      };
     });
+
+    const moduleLoadPromise = moduleLoader({
+      arguments: args,
+      preRun: preRun,
+      postRun: [],
+      print: (text: string) => {
+        console.log("emscripten stdout:", text);
+        stdout.push(text);
+      },
+      printErr: (text: string) => {
+        console.warn("emscripten stderr:", text);
+        stderr.push(text);
+      },
+      onExit: onExit!,
+      onAbort: onAbort!,
+      exit: (code: number) => { }, // Dummy exit function to satisfy the type
+      // This is a placeholder. The module loader will call the C main function automatically.
+      callMain: (args: string[]) => { },
+    });
+
+    // When the module is loaded, log it.
+    moduleLoadPromise.then(() => {
+      console.log("Emscripten module loaded...");
+    });
+
+    // Wait for both the module to be loaded and the execution to finish.
+    const [loadedModule] = await Promise.all([moduleLoadPromise, exitPromise]);
+    
+    module = loadedModule;
+
   } catch (e) {
     // This will catch errors from onExit/onAbort and re-throw them
     throw e;
   }
+
 
   // By the time we get here, the Emscripten module has finished running.
   // Now we can safely read the output.

@@ -1,8 +1,8 @@
 // ./unpackbootimg dir is artifact of building
-import EmscriptenModuleLoader from "./unpackbootimg/unpackbootimg";
+import * as EmscriptenModuleLoader from "./unpackbootimg/unpackbootimg";
 
-function main(options: any): Promise<ReturnType<typeof EmscriptenModuleLoader>> {
-  return EmscriptenModuleLoader(options);
+function main(options: any) {
+  return (EmscriptenModuleLoader as any).default(options);
 }
-  
+
 export default main;
