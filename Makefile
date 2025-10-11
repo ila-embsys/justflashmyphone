@@ -186,6 +186,7 @@ configure_unpackbootimg
 $(FASTBOOTJS_SRC):
 	git apply --quiet --directory="$@" $(FASTBOOTJS_PATCHES_SRC)/* || true
 	cd "$@" && yarn --mode=update-lockfile
+	cd "$@" && yarn install
 	cd "$@" && yarn build
 
 .PHONY: all \
