@@ -69,7 +69,10 @@ build: \
 	$(UNPACKBOOTIMG_INSTALL_DIR)/unpackbootimg.wasm
 
 dist: build $(FASTBOOTJS_SRC)
-	yarn
+# TODO: figure out how to make this not update the lockfile every time
+# Originally is was added 
+	yarn --mode=update-lockfile
+	yarn install
 	yarn build
 
 clean: clean-dist clean-emmcdl clean-libusb clean-mkbootimg
@@ -185,6 +188,7 @@ configure_unpackbootimg
 
 $(FASTBOOTJS_SRC):
 	git apply --quiet --directory="$@" $(FASTBOOTJS_PATCHES_SRC)/* || true
+# TODO: figure out how to make this not update the lockfile every time
 	cd "$@" && yarn --mode=update-lockfile
 	cd "$@" && yarn install
 	cd "$@" && yarn build
