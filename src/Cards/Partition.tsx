@@ -58,7 +58,7 @@ export const Partition: FC<PartitionProps> = ({ name, params }) => {
           </ButtonGroup>
           {bestImage ? (
             <CompoundTag
-              intent="warning"
+              intent="primary"
               icon="import"
               content="img"
               leftContent="img"
