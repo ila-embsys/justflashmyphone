@@ -7,6 +7,7 @@
  * - Allows to download the components: kernel, ramdisk and dtb
  * - Allows to edit `cmdline`
  * - Allows to repack the internals of `boot.img` partition if they were changed
+ * - Provides visual feedback (warning intent) for fields that have been modified.
 */
 
 import {
@@ -28,6 +29,7 @@ import {
   Elevation,
   EntityTitle,
   ButtonGroup,
+  Intent,
 } from "@blueprintjs/core";
 import { Fragment, useEffect, useState } from "react";
 
@@ -47,6 +49,7 @@ export interface BootSlot extends Slot {
   image: FileWithPath[];
   unpacked?: BootImageContents;
   isDirty?: boolean;
+  dirtyFields?: Set<string>;
 }
 
 interface BootPartitionParams {
@@ -74,17 +77,20 @@ const EditableCompoundTag = ({
   value,
   onConfirm,
   placeholder,
+  intent,
 }: {
   label: string;
   value: string;
   onConfirm: (value: string) => void;
   placeholder?: string;
+  intent?: Intent;
 }) => {
   return (
-    <CompoundTag minimal leftContent={label}>
+    <CompoundTag minimal leftContent={label} intent={intent}>
       <EditableText
         value={value}
         onConfirm={onConfirm}
+        onChange={onConfirm}
         placeholder={placeholder}
         minWidth={0}
       />
@@ -97,14 +103,16 @@ const SelectableCompoundTag = ({
   value,
   options,
   onChange,
+  intent,
 }: {
   label: string;
   value: string;
   options: { value: string; label: string }[];
   onChange: (value: string) => void;
+  intent?: Intent;
 }) => {
   return (
-    <CompoundTag minimal leftContent={label} className="selectable-compound-tag">
+    <CompoundTag minimal leftContent={label} className="selectable-compound-tag" intent={intent}>
       <HTMLSelect
         minimal
         className="selectable-compound-tag-select"
@@ -123,17 +131,22 @@ const BinaryPart = ({
   file,
   offset,
   onFileChange,
+  onOffsetChange,
+  intent,
+  offsetIntent,
 }: {
   name: string;
   file: File | undefined;
   offset: string;
   onFileChange: (partName: string, newFile: File) => void;
+  onOffsetChange: (value: string) => void;
+  intent?: Intent;
+  offsetIntent?: Intent;
 }) => {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newFile = event.target.files?.[0];
     if (newFile) {
-      const renamedFile = new File([newFile], name, { type: newFile.type });
-      onFileChange(name, renamedFile);
+      onFileChange(name, newFile);
     }
   };
 
@@ -158,19 +171,20 @@ const BinaryPart = ({
           <EditableCompoundTag
             label="Offset"
             value={offset}
-            onConfirm={(val) => {
-              /* TODO: Implement offset change logic */
-            }}
+            onConfirm={onOffsetChange}
+            intent={offsetIntent}
           />
         </div>
         <Button icon="download" onClick={downloadFile} disabled={!file} />
       </div>
-      <FileInput
-        fill
-        className="file-input-rtl"
-        text={file ? file.name : `Select ${name}...`}
-        onInputChange={handleFileChange}
-      />
+      <Callout icon={null} intent={intent} style={{ padding: "0px" }}>
+        <FileInput
+          fill
+          className="file-input-rtl"
+          text={file ? file.name : `Select ${name}...`}
+          onInputChange={handleFileChange}
+        />
+      </Callout>
     </Card>
   );
 };
@@ -178,29 +192,30 @@ const BinaryPart = ({
 const CmdlineCard = ({
   cmdline,
   onCmdlineChange,
+  intent,
 }: {
   cmdline: string;
   onCmdlineChange: (value: string) => void;
+  intent?: Intent;
 }) => {
   return (
     <Card className="cmdline-card">
       <H5>Command Line</H5>
-      <div className="cmdline-card-content">
-        <p>
-          <Icon icon="info-sign" /> Editing the command line will be available in a
-          future update.
-        </p>
-        <EditableText
-          value={cmdline}
-          onConfirm={onCmdlineChange}
-          onChange={onCmdlineChange}
-          multiline
-          minLines={3}
-          maxLines={10}
-          disabled // To be enabled later
-        />
-      </div>
+      <Callout className="cmdline-container" icon={null} intent={intent} >
+        <div className="cmdline-card-content">
+          <EditableText
+            value={cmdline}
+            onConfirm={onCmdlineChange}
+            onChange={onCmdlineChange}
+            multiline
+            minLines={3}
+            maxLines={10}
+            className="cmdline-editable-text"
+          />
+        </div>
+      </Callout>
     </Card>
+
   );
 };
 
@@ -208,10 +223,12 @@ const UnpackedBootImageView = ({
   unpacked,
   onParamChange,
   onFileChange,
+  dirtyFields,
 }: {
   unpacked: BootImageContents;
   onParamChange: (key: string, value: string) => void;
   onFileChange: (partName: string, newFile: File) => void;
+  dirtyFields?: Set<string>;
 }) => {
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const headerVersion = unpacked.params["BOARD_HEADER_VERSION"];
@@ -245,6 +262,7 @@ const UnpackedBootImageView = ({
               value={unpacked.params["BOARD_NAME"]}
               onConfirm={(val) => onParamChange("BOARD_NAME", val)}
               placeholder="N/A"
+              intent={dirtyFields?.has("BOARD_NAME") ? "warning" : undefined}
             />
           </div>
 
@@ -252,11 +270,13 @@ const UnpackedBootImageView = ({
             label="OS Version"
             value={unpacked.params["BOARD_OS_VERSION"]}
             onConfirm={(val) => onParamChange("BOARD_OS_VERSION", val)}
+            intent={dirtyFields?.has("BOARD_OS_VERSION") ? "warning" : undefined}
           />
           <EditableCompoundTag
             label="OS Patch Level"
             value={unpacked.params["BOARD_OS_PATCH_LEVEL"]}
             onConfirm={(val) => onParamChange("BOARD_OS_PATCH_LEVEL", val)}
+            intent={dirtyFields?.has("BOARD_OS_PATCH_LEVEL") ? "warning" : undefined}
           />
         </Card>
 
@@ -267,12 +287,14 @@ const UnpackedBootImageView = ({
             value={unpacked.params["BOARD_KERNEL_BASE"]}
             onConfirm={(val) => onParamChange("BOARD_KERNEL_BASE", val)}
             placeholder="0x00000000"
+            intent={dirtyFields?.has("BOARD_KERNEL_BASE") ? "warning" : undefined}
           />
           <SelectableCompoundTag
             label="Page Size"
             value={unpacked.params["BOARD_PAGE_SIZE"]}
             options={PAGE_SIZES}
             onChange={(val) => onParamChange("BOARD_PAGE_SIZE", val)}
+            intent={dirtyFields?.has("BOARD_PAGE_SIZE") ? "warning" : undefined}
           >
           </SelectableCompoundTag>
           <div className="info-card-spacer" />
@@ -284,25 +306,35 @@ const UnpackedBootImageView = ({
           name="kernel"
           file={unpacked.files["boot.img-kernel"]}
           offset={unpacked.params["BOARD_KERNEL_OFFSET"]}
-          onFileChange={onFileChange}
+          onFileChange={(_, newFile) => onFileChange("boot.img-kernel", newFile)}
+          onOffsetChange={(val) => onParamChange("BOARD_KERNEL_OFFSET", val)}
+          intent={dirtyFields?.has("boot.img-kernel") ? "warning" : undefined}
+          offsetIntent={dirtyFields?.has("BOARD_KERNEL_OFFSET") ? "warning" : undefined}
         />
         <BinaryPart
           name="ramdisk"
           file={unpacked.files["boot.img-ramdisk"]}
           offset={unpacked.params["BOARD_RAMDISK_OFFSET"]}
-          onFileChange={onFileChange}
+          onFileChange={(_, newFile) => onFileChange("boot.img-ramdisk", newFile)}
+          onOffsetChange={(val) => onParamChange("BOARD_RAMDISK_OFFSET", val)}
+          intent={dirtyFields?.has("boot.img-ramdisk") ? "warning" : undefined}
+          offsetIntent={dirtyFields?.has("BOARD_RAMDISK_OFFSET") ? "warning" : undefined}
         />
         <BinaryPart
           name="dtb"
           file={unpacked.files["boot.img-dtb"]}
           offset={unpacked.params["BOARD_DTB_OFFSET"]}
-          onFileChange={onFileChange}
+          onFileChange={(_, newFile) => onFileChange("boot.img-dtb", newFile)}
+          onOffsetChange={(val) => onParamChange("BOARD_DTB_OFFSET", val)}
+          intent={dirtyFields?.has("boot.img-dtb") ? "warning" : undefined}
+          offsetIntent={dirtyFields?.has("BOARD_DTB_OFFSET") ? "warning" : undefined}
         />
       </div>
 
       <CmdlineCard
         cmdline={unpacked.params["BOARD_KERNEL_CMDLINE"]}
         onCmdlineChange={(val) => onParamChange("BOARD_KERNEL_CMDLINE", val)}
+        intent={dirtyFields?.has("BOARD_KERNEL_CMDLINE") ? "warning" : undefined}
       />
 
       <div className="advanced-offsets-container">
@@ -322,11 +354,13 @@ const UnpackedBootImageView = ({
               label="Second Bootloader Offset"
               value={unpacked.params["BOARD_SECOND_OFFSET"]}
               onConfirm={(val) => onParamChange("BOARD_SECOND_OFFSET", val)}
+              intent={dirtyFields?.has("BOARD_SECOND_OFFSET") ? "warning" : undefined}
             />
             <EditableCompoundTag
               label="Tags Offset"
               value={unpacked.params["BOARD_TAGS_OFFSET"]}
               onConfirm={(val) => onParamChange("BOARD_TAGS_OFFSET", val)}
+              intent={dirtyFields?.has("BOARD_TAGS_OFFSET") ? "warning" : undefined}
             />
           </div>
         </Collapse>
@@ -349,10 +383,30 @@ export const BootPartition = ({ name, params }: BootPartitionProps) => {
   ) => {
     setLocalParams((prevParams) => {
       const newParams = [...prevParams];
-      const slot = newParams[slotIndex].slot as BootSlot;
-      if (slot.unpacked) {
-        slot.unpacked.params[key] = value;
-        slot.isDirty = true;
+      const oldSlot = newParams[slotIndex].slot as BootSlot;
+      if (oldSlot.unpacked) {
+        const newDirtyFields = new Set(oldSlot.dirtyFields || []);
+        newDirtyFields.add(key);
+
+        const newUnpacked = {
+          ...oldSlot.unpacked,
+          params: {
+            ...oldSlot.unpacked.params,
+            [key]: value,
+          },
+        };
+
+        const newSlot = {
+          ...oldSlot,
+          unpacked: newUnpacked,
+          isDirty: true,
+          dirtyFields: newDirtyFields,
+        };
+
+        newParams[slotIndex] = {
+          ...newParams[slotIndex],
+          slot: newSlot,
+        };
       }
       return newParams;
     });
@@ -365,10 +419,30 @@ export const BootPartition = ({ name, params }: BootPartitionProps) => {
   ) => {
     setLocalParams((prevParams) => {
       const newParams = [...prevParams];
-      const slot = newParams[slotIndex].slot as BootSlot;
-      if (slot.unpacked) {
-        slot.unpacked.files[partName] = newFile;
-        slot.isDirty = true;
+      const oldSlot = newParams[slotIndex].slot as BootSlot;
+      if (oldSlot.unpacked) {
+        const newDirtyFields = new Set(oldSlot.dirtyFields || []);
+        newDirtyFields.add(partName);
+
+        const newUnpacked = {
+          ...oldSlot.unpacked,
+          files: {
+            ...oldSlot.unpacked.files,
+            [partName]: newFile,
+          },
+        };
+
+        const newSlot = {
+          ...oldSlot,
+          unpacked: newUnpacked,
+          isDirty: true,
+          dirtyFields: newDirtyFields,
+        };
+
+        newParams[slotIndex] = {
+          ...newParams[slotIndex],
+          slot: newSlot,
+        };
       }
       return newParams;
     });
@@ -477,6 +551,7 @@ export const BootPartition = ({ name, params }: BootPartitionProps) => {
                 onFileChange={(partName, newFile) =>
                   handleFileChange(index, partName, newFile)
                 }
+                dirtyFields={slot.dirtyFields}
               />
             </Fragment>
           ) : (

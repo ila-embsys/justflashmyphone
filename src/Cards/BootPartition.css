@@ -67,8 +67,11 @@
   text-align: left;
 }
 
+.cmdline-container {
+  padding: 5px;
+}
+
 .cmdline-card {
-  margin-top: 10px;
   gap: 10px;
   padding: 10px;
 }
@@ -80,4 +83,8 @@
 
 .advanced-offsets-container {
   margin: 10px;
+}
+
+.cmdline-editable-text {
+  width: 100%;
 }
