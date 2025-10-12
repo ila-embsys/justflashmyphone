@@ -1,3 +1,14 @@
+/**
+ * @file BootPartition.tsx
+ * @description Component for managing and displaying the contents of a boot.img partition.
+ *
+ * Requirements:
+ * - Shows the internals of `boot.img` partition
+ * - Allows to download the components: kernel, ramdisk and dtb
+ * - Allows to edit `cmdline`
+ * - Allows to repack the internals of `boot.img` partition if they were changed
+*/
+
 import {
   Button,
   Card,
@@ -16,6 +27,7 @@ import {
   CardList,
   Elevation,
   EntityTitle,
+  ButtonGroup,
 } from "@blueprintjs/core";
 import { Fragment, useEffect, useState } from "react";
 
@@ -34,6 +46,7 @@ export interface BootImageContents {
 export interface BootSlot extends Slot {
   image: FileWithPath[];
   unpacked?: BootImageContents;
+  isDirty?: boolean;
 }
 
 interface BootPartitionParams {
@@ -336,9 +349,10 @@ export const BootPartition = ({ name, params }: BootPartitionProps) => {
   ) => {
     setLocalParams((prevParams) => {
       const newParams = [...prevParams];
-      const unpacked = (newParams[slotIndex].slot as BootSlot).unpacked;
-      if (unpacked) {
-        unpacked.params[key] = value;
+      const slot = newParams[slotIndex].slot as BootSlot;
+      if (slot.unpacked) {
+        slot.unpacked.params[key] = value;
+        slot.isDirty = true;
       }
       return newParams;
     });
@@ -351,9 +365,10 @@ export const BootPartition = ({ name, params }: BootPartitionProps) => {
   ) => {
     setLocalParams((prevParams) => {
       const newParams = [...prevParams];
-      const unpacked = (newParams[slotIndex].slot as BootSlot).unpacked;
-      if (unpacked) {
-        unpacked.files[partName] = newFile;
+      const slot = newParams[slotIndex].slot as BootSlot;
+      if (slot.unpacked) {
+        slot.unpacked.files[partName] = newFile;
+        slot.isDirty = true;
       }
       return newParams;
     });
@@ -407,6 +422,7 @@ export const BootPartition = ({ name, params }: BootPartitionProps) => {
 
   const slots = localParams.map((param, index) => {
     const slot = param.slot as BootSlot;
+    const bestImage = slot.image.length > 0 ? slot.image[0] : null;
     const title =
       param.suffix.length > 0 ? <H5>{param.suffix.toUpperCase()}</H5> : <></>;
     const tags = (
@@ -415,6 +431,34 @@ export const BootPartition = ({ name, params }: BootPartitionProps) => {
           {prettyBytes(param.slot.size)}
         </CompoundTag>
         <CompoundTag leftContent="Type">{param.slot.type}</CompoundTag>
+        <ButtonGroup>
+          <Button disabled minimal intent="primary" icon="import"></Button>
+          <Button disabled minimal icon="export"></Button>
+          <Button disabled minimal intent="danger" icon="eraser"></Button>
+        </ButtonGroup>
+        {bestImage && (
+          <Fragment>
+            <CompoundTag
+              intent="primary"
+              icon="import"
+              content="img"
+              leftContent="img"
+              style={{ width: "fit-content", minWidth: "5em" }}
+            >
+              {bestImage.name}
+            </CompoundTag>
+            <CompoundTag
+              intent={slot.isDirty ? "warning" : "success"}
+              icon={slot.isDirty ? "wrench" : "shield"}
+              leftContent={"content"}
+            >
+              {slot.isDirty
+                ? "repacked"
+                : "original"}
+            </CompoundTag>
+          </Fragment>
+        )}
+
       </Fragment>
     );
 
@@ -422,23 +466,24 @@ export const BootPartition = ({ name, params }: BootPartitionProps) => {
       <Callout key={param.suffix} compact>
         <EntityTitle title={title} tags={tags} />
         <div style={{ marginTop: "10px" }}>
+
+          {slot.unpacked ? (
+            <Fragment>
+              <UnpackedBootImageView
+                unpacked={slot.unpacked}
+                onParamChange={(key, value) =>
+                  handleParamChange(index, key, value)
+                }
+                onFileChange={(partName, newFile) =>
+                  handleFileChange(index, partName, newFile)
+                }
+              />
+            </Fragment>
+          ) : (
+            <p>{bestImage ? `Unpacking...` : null}</p>
+          )}
           {slot.flashProgress !== undefined && (
             <ProgressBar value={slot.flashProgress} />
-          )}
-          {slot.unpacked ? (
-            <UnpackedBootImageView
-              unpacked={slot.unpacked}
-              onParamChange={(key, value) => handleParamChange(index, key, value)}
-              onFileChange={(partName, newFile) =>
-                handleFileChange(index, partName, newFile)
-              }
-            />
-          ) : (
-            <p>
-              {slot.image.length > 0
-                ? `Image selected: ${slot.image[0].name}. Unpacking...`
-                : null}
-            </p>
           )}
         </div>
       </Callout>
